@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Документ без названия</title>
+
+</head>
+
+<body>
+
+	<!-- УРОК 1 --><hr>
+	<h3>Задание к Уроку 1</h3>
+	<p>Смысл следующий: элемент интерфейса, который возвращает значение текстового поля ввода, если галочка проставлена и null, если галочка снята.<br>
+	Сам элемент должен начинать работать при "заворачивании" в объект обычного текстового поля (input type="text"). Галочку добавляем в конструкторе класса.<br>
+	При снятии галочки, логично, если ввод текста будет блокироваться (disabled) - дополнительные эффекты - только в плюс.<br>
+	Факультативно: если хотите поиграться с наследованием, сделайте еще одно текстовое поле с радиокнопок - для ситуаций, например "да/нет/свой вариант". Оба класса весьма похожи, попробуйте максимально избежать копипаста с помощью наследования. Удачи!</p>
+	
+	<h4>Решение:</h4>
+	<p>field 1 : <input type = "text" class = "switch1"></p>
+	<p>field 2 : <input type = "text" class = "switch2"></p>
+	<!-- Тест -->
+	<button style="width: 200px;" onclick="
+    	var theElement = document.getElementById('test1');
+		theElement.innerText = '  ' + field1.value() + ', ' + field23.value()
+		">ТЕСТ</button>
+		<span id="test1"></span>
+  	<!-- Скрипт -->
+    <script>
+		/* 	@param {String|HTMLElement} name
+           	@constructor */
+        function CheckboxInputBox(name) {
+			var element = typeof name === 'string' ? document.querySelector(name) : name; //ссылка на поле ввода
+			this.checkbox = document.createElement('input'); this.checkbox.type = 'checkbox'; //определение типа checkbox
+			this.checkbox.inputboxBackgroundColor = element.style.backgroundColor; //запоминие исходного цвета фона поля ввода
+			element.parentNode.insertBefore(this.checkbox, element.nextElementSibling); 
+			
+			this.checkbox.onchange = function() { //настраиваем нотификатор для чекбокса
+				if (this.checked) { 
+					this.elementOff() 
+				} else {
+					this.elementOn() }
+			}
+
+			//блокировка поля ввода
+			this.checkbox.elementOff = function() {
+				element.style.backgroundColor = "lightgray";
+				element.value = null;
+				element.disabled = true;
+			}
+			//разблокировка поля ввода
+			this.checkbox.elementOn = function() {
+				element.style.backgroundColor = this.inputboxBackgroundColor;
+				element.disabled = false;
+			}
+			
+			//получение значение поля
+			this.value = function() { return this.checkbox.checked ? null : element.value; }
+			this.element = function() { return element; }
+		}
+		//СОЗДАНИЕ ОБЪЕКТА
+		var field1 = new CheckboxInputBox('.switch1');
+		
+		//Наследование I
+		function CheckboxInputRadio(name, label){
+   			CheckboxInputBox.apply(this, arguments); // вызываем родительский конструктор
+			this.checkbox.type = 'radio';
+			//добавляем название кнопки
+			var text = document.createElement('span');
+  			text.innerHTML = label;
+			this.checkbox.parentNode.insertBefore(text,this.checkbox.nextElementSibling);
+		}
+			
+		//СОЗДАНИЕ ОБЪЕКТОВ
+		var field21 = new CheckboxInputRadio('.switch2', '   Yes');
+		var field22 = new CheckboxInputRadio('.switch2', '   No');
+		var field23 = new CheckboxInputRadio('.switch2', '    ');
+		
+		field23.checkbox.checked = true;
+		field23.checkbox.onchange = function() { //настраиваем нотификатор для чекбокса
+				if (this.checked) { 
+					this.elementOn();
+					field21.checkbox.checked = false;
+					field22.checkbox.checked = false;
+				}
+		}
+		field21.checkbox.onchange = function() { //настраиваем нотификатор для чекбокса
+				if (this.checked) { 
+					this.elementOn();
+					field23.checkbox.checked = false;
+					field22.checkbox.checked = false;
+					this.elementOff();
+				}
+		}
+		field22.checkbox.onchange = function() { //настраиваем нотификатор для чекбокса
+				if (this.checked) { 
+					this.elementOn();
+					field21.checkbox.checked = false;
+					field23.checkbox.checked = false;
+					this.elementOff();
+				}
+		}
+		field23.value = function() { 
+			if (field23.checkbox.checked) { return field23.element().value; };
+			if (field21.checkbox.checked) { return "Yes"; };
+			if (field22.checkbox.checked) { return "No"; };
+			}
+	</script>
+	<hr>
+</body>
+</html>
